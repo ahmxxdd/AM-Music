@@ -1,5 +1,4 @@
 import { CiImageOn } from "react-icons/ci";
-import { BsEmojiSmileFill } from "react-icons/bs";
 import { useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -96,7 +95,6 @@ const CreatePost = () => {
           </div>
           <input
             type="file"
-            accept="image/*"
             hidden
             ref={imgRef}
             onChange={handleImgChange}

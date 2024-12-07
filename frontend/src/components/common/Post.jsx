@@ -155,13 +155,19 @@ const Post = ({ post }) => {
           </div>
           <div className="flex flex-col gap-3 overflow-hidden">
             <span>{post.text}</span>
-            {post.img && (
-              <img
-                src={post.img}
-                className="h-80 object-contain rounded-lg border border-gray-700"
-                alt=""
-              />
-            )}
+            {post.img &&
+              (post.img.endsWith(".mp4") ? (
+                <video controls width="500">
+                  <source src={post.img} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <img
+                  src={post.img}
+                  alt="Post media"
+                  style={{ maxWidth: "100%" }}
+                />
+              ))}
           </div>
           <div className="flex mt-3">
             <div className="flex gap-4 items-center w-2/3">

@@ -13,11 +13,18 @@ export const createPost = async (req, res) => {
 		if (!user) return res.status(404).json({ message: "User not found" });
 
 		if (!text && !img) {
-			return res.status(400).json({ error: "Post must have text or image" });
+			return res.status(400).json({ error: "Post must have text or image/video" });
 		}
 
 		if (img) {
-			const uploadedResponse = await cloudinary.uploader.upload(img);
+			const fileType = img.split(";")[0].split(":")[1]; // Extract MIME type
+			if (!fileType.startsWith("image/") && !fileType.startsWith("video/")) {
+				return res.status(400).json({ error: "Unsupported file type" });
+			}
+
+			const uploadedResponse = await cloudinary.uploader.upload(img, {
+				resource_type: "auto", // Automatically handles images/videos
+			});
 			img = uploadedResponse.secure_url;
 		}
 
@@ -30,8 +37,8 @@ export const createPost = async (req, res) => {
 		await newPost.save();
 		res.status(201).json(newPost);
 	} catch (error) {
+		console.error("Error in createPost controller: ", error.response || error.message || error);
 		res.status(500).json({ error: "Internal server error" });
-		console.log("Error in createPost controller: ", error);
 	}
 };
 
