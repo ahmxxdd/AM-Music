@@ -1,11 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
-
-
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
@@ -16,19 +13,25 @@ import useFollow from "./../../hooks/useFollow";
 import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
 
 const ProfilePage = () => {
+  // State variables to manage the profile and cover images, and feed type
   const [coverImg, setCoverImg] = useState(null);
   const [profileImg, setProfileImg] = useState(null);
   const [feedType, setFeedType] = useState("posts");
 
+  // References for the file input elements
   const coverImgRef = useRef(null);
   const profileImgRef = useRef(null);
 
+  // Retrieve the username parameter from the URL
   const { username } = useParams();
 
+  // Hook to handle following and unfollowing users
   const { follow, isPending } = useFollow();
 
+  // Fetch the authenticated user's data
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
+  // Fetch the user's profile data based on the username from the URL
   const {
     data: user,
     isLoading,
@@ -50,14 +53,19 @@ const ProfilePage = () => {
     },
   });
 
-  const {updateProfile, isUpdatingProfile} = useUpdateUserProfile()
+  // Hook to handle updating the user's profile
+  const { updateProfile, isUpdatingProfile } = useUpdateUserProfile();
 
+  // Check if the profile belongs to the authenticated user
   const isMyProfile = authUser._id === user?._id;
 
+  // Format the date when the user joined
   const memberSinceDate = formatMemberSinceDate(user?.createdAt);
 
+  // Check if the authenticated user is already following the current user
   const amIFollowing = authUser?.following.includes(user?._id);
 
+  // Handle image file input changes (cover image and profile image)
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
     if (file) {
@@ -70,22 +78,25 @@ const ProfilePage = () => {
     }
   };
 
+  // Refetch the user data whenever the username changes
   useEffect(() => {
     refetch();
   }, [username, refetch]);
 
   return (
     <>
-      <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
-        {/* HEADER */}
+      <div className="flex-[4_4_0] border-r border-gray-700 min-h-screen ">
+        {/* HEADER: Profile Header Skeleton during loading */}
         {(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
         {!isLoading && !isRefetching && !user && (
           <p className="text-center text-lg mt-4">User not found</p>
         )}
         <div className="flex flex-col">
+          {/* User Profile Details */}
           {!isLoading && !isRefetching && user && (
             <>
               <div className="flex gap-10 px-4 py-2 items-center">
+                {/* Back to home link */}
                 <Link to="/">
                   <FaArrowLeft className="w-4 h-4" />
                 </Link>
@@ -96,7 +107,8 @@ const ProfilePage = () => {
                   </span>
                 </div>
               </div>
-              {/* COVER IMG */}
+              
+              {/* COVER IMAGE SECTION */}
               <div className="relative group/cover">
                 <img
                   src={coverImg || user?.coverImg || "/cover.png"}
@@ -112,6 +124,7 @@ const ProfilePage = () => {
                   </div>
                 )}
 
+                {/* File input for changing cover image */}
                 <input
                   type="file"
                   hidden
@@ -124,6 +137,7 @@ const ProfilePage = () => {
                   ref={profileImgRef}
                   onChange={(e) => handleImgChange(e, "profileImg")}
                 />
+                
                 {/* USER AVATAR */}
                 <div className="avatar absolute -bottom-16 left-4">
                   <div className="w-32 rounded-full relative group/avatar">
@@ -145,6 +159,8 @@ const ProfilePage = () => {
                   </div>
                 </div>
               </div>
+              
+              {/* Profile Action Buttons */}
               <div className="flex justify-end px-4 mt-5">
                 {isMyProfile && <EditProfileModal authUser={authUser} />}
                 {!isMyProfile && (
@@ -157,11 +173,12 @@ const ProfilePage = () => {
                     {!isPending && !amIFollowing && "Follow"}
                   </button>
                 )}
+                {/* Update Button for Images */}
                 {(coverImg || profileImg) && (
                   <button
                     className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
                     onClick={async () => {
-                      await updateProfile({ coverImg, profileImg })
+                      await updateProfile({ coverImg, profileImg });
                       setProfileImg(null);
                       setCoverImg(null);
                     }}
@@ -171,6 +188,7 @@ const ProfilePage = () => {
                 )}
               </div>
 
+              {/* User Bio and Information */}
               <div className="flex flex-col gap-4 mt-14 px-4">
                 <div className="flex flex-col">
                   <span className="font-bold text-lg">{user?.fullName}</span>
@@ -180,20 +198,19 @@ const ProfilePage = () => {
                   <span className="text-sm my-1">{user?.bio}</span>
                 </div>
 
+                {/* User's Social Links and Member Since Date */}
                 <div className="flex gap-2 flex-wrap">
                   {user?.link && (
                     <div className="flex gap-1 items-center ">
-                      <>
-                        <FaLink className="w-3 h-3 text-slate-500" />
-                        <a
-                          href="https://youtube.com/@asaprogrammer_"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-sm text-blue-500 hover:underline"
-                        >
-                          {user?.link}
-                        </a>
-                      </>
+                      <FaLink className="w-3 h-3 text-slate-500" />
+                      <a
+                        href={user?.link}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm text-blue-500 hover:underline"
+                      >
+                        {user?.link}
+                      </a>
                     </div>
                   )}
                   <div className="flex gap-2 items-center">
@@ -203,6 +220,8 @@ const ProfilePage = () => {
                     </span>
                   </div>
                 </div>
+
+                {/* Followers and Following Count */}
                 <div className="flex gap-2">
                   <div className="flex gap-1 items-center">
                     <span className="font-bold text-xs">
@@ -218,6 +237,8 @@ const ProfilePage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Feed Type Tabs */}
               <div className="flex w-full border-b border-gray-700 mt-4">
                 <div
                   className="flex justify-center flex-1 p-3 hover:bg-secondary transition duration-300 relative cursor-pointer"
@@ -234,17 +255,19 @@ const ProfilePage = () => {
                 >
                   Likes
                   {feedType === "likes" && (
-                    <div className="absolute bottom-0 w-10  h-1 rounded-full bg-primary" />
+                    <div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary" />
                   )}
                 </div>
               </div>
             </>
           )}
 
+          {/* Render Posts Component */}
           <Posts feedType={feedType} username={username} userId={user?._id} />
         </div>
       </div>
     </>
   );
 };
+
 export default ProfilePage;
