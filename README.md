@@ -1,3 +1,5 @@
+AMUsic
+
 Overview
 
 A Twitter clone built using the MERN stack and Vite. Core features include posting, authentication, following, liking, commenting, notifications, and profile management.
