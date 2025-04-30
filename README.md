@@ -1,8 +1,8 @@
-AMUsic
+AMusic
 
 Overview
 
-A Twitter clone built using the MERN stack and Vite. Core features include posting, authentication, following, liking, commenting, notifications, and profile management.
+A Social Media Platform built using the MERN stack and Vite. Core features include posting, authentication, following, liking, commenting, notifications, and profile management.
 
 
 Tech Stack
